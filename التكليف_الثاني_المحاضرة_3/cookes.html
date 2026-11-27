@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>3. شرح Cookies</title>
+  <style>
+    body { font-family: Tahoma, sans-serif; max-width: 540px; margin: 40px auto; background: #f4f6f8; padding: 20px; }
+    .card { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    select, input, button { padding: 10px; font-size: 15px; margin: 5px 0; border-radius: 6px; border: 1px solid #ccc; }
+    button { background: #6a4c93; color: #fff; border: none; cursor: pointer; }
+    button.danger { background: #c1121f; }
+    pre { background: #1d1e22; color: #a8ff60; padding: 12px; border-radius: 6px; overflow-x: auto; direction: ltr; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div style="margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+      <a href="index.html" style="color: #6a4c93; text-decoration: none; font-size: 14px; font-weight: bold;">← العودة إلى المحاضرة النظرية</a>
+    </div>
+    <h2>تطبيق Cookies: تفضيلات المستخدم بعمر زمني</h2>
+    <p>سيتم حفظ الكوكي لمدة <strong> ثانية</strong> فقط لتجربة انتهاء الصلاحية أمام الطلاب.</p>
+
+    <input type="text" id="username" placeholder="اسم المستخدم" />
+    <select id="themeSelect">
+      <option value="light">الوضع النهاري (Light)</option>
+      <option value="dark">الوضع الليلي (Dark)</option>
+    </select>
+    <br>
+    <button onclick="save()">حفظ الكوكيز (... ثانية)</button>
+    <button onclick="show()">تحديث العرض</button>
+    <button class="danger" onclick="del()">حذف الكوكيز فورًا</button>
+    <button onclick="risk()">محاكاة خطر الكوكي</button>
+
+    <h4>محتوى document.cookie الحالي:</h4>
+    <pre id="cookieOutput">لا توجد كوكيز محفوظة</pre>
+  </div>
+
+  <script>
+    function set(name, value, seconds) {
+      document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; max-age=${seconds}; path=/`;
+    }
+
+    function get(name) {
+      const arr = document.cookie.split("; ");
+
+      for (let item of arr) {
+        const [key, val] = item.split("=");
+
+        if (decodeURIComponent(key) === name) {
+          return decodeURIComponent(val);
+        }
+      }
+
+      return null;
+    }
+
+    function save() {
+      const user = document.getElementById("username").value.trim() || "زائر";
+      const mode = document.getElementById("themeSelect").value;
+
+      set("user_name", user, 30);
+      set("site_theme", mode, 30);
+
+      apply();
+      show();
+    }
+
+    function del() {
+      set("user_name", "", 90);
+      set("site_theme", "", 90);
+
+      apply();
+      show();
+    }
+
+    function apply() {
+      const mode = get("site_theme");
+
+      if (mode === "dark") {
+        document.body.style.background = "#222831";
+      } else {
+        document.body.style.background = "#f4f6f8";
+      }
+    }
+
+    function show() {
+      const result = document.getElementById("cookieOutput");
+
+      if (document.cookie !== "") {
+        result.textContent = document.cookie;
+      } else {
+        result.textContent = "لا توجد كوكيز (إما لم تُحفظ أو انتهت مدتها)";
+      }
+    }
+
+    function risk() {
+      const time = new Date().toLocaleTimeString();
+      const size = screen.width + "x" + screen.height;
+      const lang = navigator.language;
+      const url = window.location.href;
+
+      const info =
+        "Time=" + time +
+        " | Screen=" + size +
+        " | Lang=" + lang +
+        " | URL=" + url;
+
+      set("demo_track_info", info, 30);
+
+      const result = document.getElementById("cookieOutput");
+
+      if (result !== null) {
+        result.textContent =
+          document.cookie + "\n\n" +
+          "- الوقت: " + time + "\n" +
+          "- مقاس الشاشة: " + size + "\n" +
+          "- لغة المتصفح: " + lang + "\n" +
+          "- الرابط الحالي: " + url + "\n" +
+          "- الرسالة: لا تقبل الكوكيز عشوائيًا في أي موقع؛ فالكوكي قد يُستغل في التتبع أو سرقة الجلسة إذا لم يُحمَ جيدًا.";
+      } else {
+        show();
+      }
+    }
+
+    risk();
+    apply();
+    show();
+  </script>
+</body>
+</html>
+
+
+
